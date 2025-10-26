@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HOJOJ - 个人主页</title>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = window.location.pathname.split('/').pop();
+            fetch(`/api/user/${username}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('username').textContent = data.username;
+                    document.getElementById('try-count').textContent = data.try;
+                    document.getElementById('solved-count').textContent = data.solved;
+                    document.getElementById('score-count').textContent = data.score;
+                    const list = document.getElementById('solved-list');
+                    data.solve_list.forEach(pid => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `<a href="/problemset/${pid}">${pid}</a>`;
+                        // 不换行
+                        div.style.display = 'inline-block';
+                        // 间距
+                        div.style.marginRight = '10px';
+                        // 字体颜色
+                        div.style.color = '#fff';
+                        list.appendChild(div);
+                    });
+                });
+        });
+    </script>    <style>
+        .danger-btn {
+            background-color: #dc3545;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }        
+        .danger-btn:hover {
+            background-color: #c82333;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn {
+            background-color: #ffc107;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn:hover {
+            background-color: #e0a800;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn:hover {
+            background-color: #218838;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 - 与home.html保持一致 -->
+    <header style="background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 50%,#89c3eb 51%,#d5ebfb 100%);height: 50px;">
+        <div style="display: inline-block;line-height: 50px;"><a href="/home">主页</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/problemset">题目列表</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/submit">提交代码</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/status">评测查询</a></div>
+    </header>
+    <h1 id="username"></h1>
+    <p style="background-color:#0000ffaf">总尝试次数：<span id="try-count"></span></p>
+    <p style="background-color:#008000af;">已解决题目数：<span id="solved-count"></span></p>
+    <p style="background-color:#c0ba00af;">难度得分：<span id="score-count"></span></p>
+    <h4>已解决题目列表：</h4>
+    <div id="solved-list"></ul>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOJOJ - 题目详情</title>
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // 验证token
+                fetch('/api/verifyuser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.msg === 'success') {
+                        document.getElementById('user-info').style.display = 'block';
+                        document.getElementById('username-display').textContent = data.username;
+                    } else {
+                        localStorage.removeItem('token');
+                        document.getElementById('user-info').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('验证失败:', error);
+                    localStorage.removeItem('token');
+                    document.getElementById('user-info').style.display = 'none';
+                });
+            } else {
+                document.getElementById('user-info').style.display = 'none';
+            }
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            checkLoginStatus();
+        };
+    </script>
+</head>
+<body>
+    <!-- 顶部导航 - 与home.html保持一致 -->
+    <header style="background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 50%,#89c3eb 51%,#d5ebfb 100%);height: 50px;">
+        <div style="display: inline-block;line-height: 50px;"><a href="/home">主页</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/problemset">题目列表</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/submit">提交代码</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/status">评测查询</a></div>
+    </header>
+
+    <!-- 用户信息 -->
+    <div id="user-info" style="display: none;">
+        <p>您已登录，用户名: <span id="username-display"></span></p>
+        <button class="user-btn" onclick="window.location.href = '/user/' + document.getElementById('username-display').textContent;">我的主页</button>
+        <button onclick="localStorage.removeItem('token'); checkLoginStatus();">退出登录</button>
+    </div>
+
+
+    <!-- 题目详情 -->
+    <section id="problem-details" style="margin: 20px;">
+        <h1 id="problem-title">你能回答这些问题吗？</h1>
+
+        <!-- 题目信息 -->
+        <div id="problem-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px;">
+            <p><strong>时间限制:</strong> <span id="time-limit">2000ms</span></p>
+            <p><strong>空间限制:</strong> <span id="memory-limit">256MB</span></p>
+            <p><strong>评测方式:</strong> <span id="judge-method">Remote</span></p>
+        </div>
+
+        <!-- 题目描述 -->
+        <div id="problem-description" style="margin-bottom: 20px;">
+            <h2>题目描述</h2>
+                <div class="panel_content" _msttexthash="6773256412" _msthash="17">很多邪恶的战舰在战斗前排成一排。我们的指挥官决定使用我们的秘密武器消灭战列舰。每艘战列舰都可以标记一个耐力值。对于我们秘密武器的每一次攻击，它都会降低连续部分战列舰的续航能力，使它们的耐力达到其本来的耐力值的平方根。在我们秘密武器的一系列攻击过程中，指挥官想要评估武器的效果，所以他向你求助。<br _istranslated="1">您被要求回答战列舰线连续部分的续航力之和的问题。<br _istranslated="1"><br _istranslated="1">请注意，平方根运算应向下舍入为整数。</div>
+            </div>
+        </div>
+
+        <!-- 输入描述 -->
+        <div id="input-description" style="margin-bottom: 20px;">
+            <h2>输入描述</h2>
+                <div class="panel_content">输入包含多个测试用例，由 EOF 终止。<br _mstmutation="1" _istranslated="1">对于每个测试用例，第一行包含一个整数 N，表示一行中有 N 艘邪恶战舰。（1 &lt;= N &lt;= 100000）第二行<br _mstmutation="1" _istranslated="1">包含N个整数Ei，表示每艘战列舰从行头到尾的续航值。您可以假设所有耐力值的总和小于 2<sup _mstmutation="1" _istranslated="1">63</sup>。<br _mstmutation="1" _istranslated="1">下一行包含一个整数 M，表示作和查询的数量。（1 &lt;= M &lt;= 100000）<br _mstmutation="1" _istranslated="1">对于以下 M 行，每行包含三个整数 T、X 和 Y。T=0 表示秘密武器的作用，这将降低第 X 和第 Y 战列舰（包括）之间战列舰的耐力值。T=1 表示指挥官的查询，询问战列舰在第 X 和第 Y 之间的耐力值之和，包括第 X 次。<br></div>
+            </div>
+        </div>
+
+        <!-- 输出描述 -->
+        <div id="output-description" style="margin-bottom: 20px;">
+            <h2>输出描述</h2>
+            <div id="output-content">
+                <div class="panel_content" _msttexthash="586225939" _msthash="21">对于每个测试用例，在第一行打印案例编号。然后为每个查询打印一行。请记住，在每个测试用例之后遵循一个空行。</div>
+            </div>
+        </div>
+
+        <!-- 提示 -->
+        <div id="hint" style="margin-bottom: 20px;">
+            <h2>提示</h2>
+            <div id="hint-content">
+                <p>无</p>
+            </div>
+        </div>
+
+        <!-- 样例 -->
+        <div id="examples" style="margin-bottom: 20px;">
+            <h2>样例</h2>
+            
+            <!-- 样例输入 -->
+            <div id="example-input" style="margin-bottom: 10px;">
+                <h3>输入</h3>
+                <pre id="sample-input">10
+1 2 3 4 5 6 7 8 9 10
+5
+0 1 10
+1 1 10
+1 1 5
+0 5 8
+1 4 8</pre>
+            </div>
+
+            <!-- 样例输出 -->
+            <div id="example-output">
+                <h3>输出</h3>
+                <pre id="sample-output">Case #1:
+19
+7
+6</pre>
+            </div>
+            
+            <div id="source">
+                <h3>来源</h3>
+                <a style='color:#1A5CC8' href='https://acm.hdu.edu.cn/showproblem.php?pid=4027'>HDU-4027</a>
+            </div>
+        </div>
+
+        <!-- 提交按钮 -->
+        <div id="submit-area">
+            <button onclick="window.location.href='/submit?problem=5'">提交代码</button>
+
+        </div>
+    </section>
+</body>
+</html>

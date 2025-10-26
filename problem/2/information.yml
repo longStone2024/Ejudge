@@ -1,0 +1,6 @@
+- id: 2
+- name: "气球飞升"
+- submit: "Remote Judge"
+- remoteid: "HDU-1004"
+- isremote: "hdu"
+- diff: "1"

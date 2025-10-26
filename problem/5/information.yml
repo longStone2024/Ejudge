@@ -1,0 +1,6 @@
+﻿- id: 5
+- name: "你能回答这些问题吗？"
+- submit: "Remote Judge"
+- remoteid: "HDU-4027"
+- isremote: "hdu"
+- diff: "4"

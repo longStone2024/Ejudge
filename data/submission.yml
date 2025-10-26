@@ -1,0 +1,317 @@
+- author: admin
+  code: "#include \"bits/stdc++.h\"\n#define p printf\nint a, b;\nint main(){\n  \
+    \  srand(time(NULL));\n    scanf(\"%d%d\",&a,&b);\n    p(\"%d\",a + b);\n    return\
+    \ 0;\n}\n"
+  createtime: '2025-10-25 15:44:07'
+  language: C++
+  memorykb: 280
+  pid: '1'
+  runid: 22
+  score: 100
+  status: 0
+  timems: 2
+- author: admin
+  code: 'a,b=map(eval,input().split())
+
+    print(a+b)
+
+    '
+  createtime: '2025-10-19 14:55:49'
+  language: Python3
+  memorykb: 2984
+  pid: '1'
+  runid: 21
+  score: 100
+  status: 0
+  timems: 21
+- author: admin
+  code: "#include <iostream>\n#include <cmath>\n#define int long long\nusing namespace\
+    \ std;\n\nint n, q, a[100005];\n\nclass SegmentTree\n{\nprivate:\n    int d[400005],\
+    \ lz[400005], mx[400005];\npublic:\n    void build(int a[], int l, int r, int\
+    \ p)\n    {\n        if (l == r)\n        {\n            d[p] = a[l];\n      \
+    \      mx[p] = a[l];\n            return ;\n        }\n        int mid = (l +\
+    \ r) >> 1;\n        build(a, l, mid, p << 1);\n        build(a, mid + 1, r, (p\
+    \ << 1) + 1);\n        d[p] = d[p << 1] + d[(p << 1) + 1];\n        mx[p] = max(mx[p\
+    \ << 1], mx[(p << 1) + 1]);\n    }\n\n    void update(int s, int t, int l, int\
+    \ r, int p)\n    {\n        if (l == r)\n        {\n            d[p] = sqrt(d[p]);\n\
+    \            mx[p] = d[p];\n            return ;\n        }\n        int mid =\
+    \ (l + r) >> 1;\n        if (s <= mid && mx[p << 1] > 1)\n            update(s,\
+    \ t, l, mid, p << 1);\n        if (mid < t && mx[(p << 1) + 1] > 1)\n        \
+    \    update(s, t, mid + 1, r, (p << 1) + 1);\n        d[p] = d[p << 1] + d[(p\
+    \ << 1) + 1];\n        mx[p] = max(mx[p << 1], mx[(p << 1) + 1]);\n    }\n\n \
+    \   int getsum(int s, int t, int l, int r, int p)\n    {\n        if (s <= l &&\
+    \ r <= t)\n            return d[p];\n        int mid = (l + r) >> 1, res = 0;\n\
+    \        if (s <= mid)\n            res += getsum(s, t, l, mid, p << 1);\n   \
+    \     if (mid < t)\n            res += getsum(s, t, mid + 1, r, (p << 1) + 1);\n\
+    \        return res;\n    }\n};\n\nvoid solve()\n{\n    SegmentTree s;\n    for\
+    \ (int i = 1; i <= n; i++)\n        cin >> a[i];\n    s.build(a, 1, n, 1);\n \
+    \   cin >> q;\n    while (q--)\n    {\n        int op, l, r;\n        cin >> op\
+    \ >> l >> r;\n        if (l > r)\n            swap(l, r);\n        if (op == 0)\n\
+    \            s.update(l, r, 1, n, 1);\n        else\n            cout << s.getsum(l,\
+    \ r, 1, n, 1) << endl;\n    }\n}\n\nsigned main()\n{\n    ios::sync_with_stdio(0),\
+    \ cin.tie(0), cout.tie(0);\n    int cnt = 0;\n    while (cin >> n)\n    {\n  \
+    \      cout << \"Case #\" << ++cnt << \":\\n\";\n        solve();\n        cout\
+    \ << endl;\n    }\n    return 0;\n}"
+  createtime: '2025-10-19 09:58:20'
+  language: G++
+  memorykb: 11944
+  pid: '5'
+  runid: 20
+  score: null
+  status: 0
+  timems: 421
+- author: admin
+  code: "#include <iostream>\n#include <cmath>\n#define int long long\nusing namespace\
+    \ std;\n\nint n, q, a[100005];\n\nclass SegmentTree\n{\nprivate:\n    int d[400005],\
+    \ lz[400005], mx[400005];\npublic:\n    void build(int a[], int l, int r, int\
+    \ p)\n    {\n        if (l == r)\n        {\n            d[p] = a[l];\n      \
+    \      mx[p] = a[l];\n            return ;\n        }\n        int mid = (l +\
+    \ r) >> 1;\n        build(a, l, mid, p << 1);\n        build(a, mid + 1, r, (p\
+    \ << 1) + 1);\n        d[p] = d[p << 1] + d[(p << 1) + 1];\n        mx[p] = max(mx[p\
+    \ << 1], mx[(p << 1) + 1]);\n    }\n\n    void update(int s, int t, int l, int\
+    \ r, int p)\n    {\n        if (l == r)\n        {\n            d[p] = sqrt(d[p]);\n\
+    \            mx[p] = d[p];\n            return ;\n        }\n        int mid =\
+    \ (l + r) >> 1;\n        if (s <= mid && mx[p << 1] > 1)\n            update(s,\
+    \ t, l, mid, p << 1);\n        if (mid < t && mx[(p << 1) + 1] > 1)\n        \
+    \    update(s, t, mid + 1, r, (p << 1) + 1);\n        d[p] = d[p << 1] + d[(p\
+    \ << 1) + 1];\n        mx[p] = max(mx[p << 1], mx[(p << 1) + 1]);\n    }\n\n \
+    \   int getsum(int s, int t, int l, int r, int p)\n    {\n        if (s <= l &&\
+    \ r <= t)\n            return d[p];\n        int mid = (l + r) >> 1, res = 0;\n\
+    \        if (s <= mid)\n            res += getsum(s, t, l, mid, p << 1);\n   \
+    \     if (mid < t)\n            res += getsum(s, t, mid + 1, r, (p << 1) + 1);\n\
+    \        return res;\n    }\n};\n\nvoid solve()\n{\n    SegmentTree s;\n    for\
+    \ (int i = 1; i <= n; i++)\n        cin >> a[i];\n    s.build(a, 1, n, 1);\n \
+    \   cin >> q;\n    while (q--)\n    {\n        int op, l, r;\n        cin >> op\
+    \ >> l >> r;\n        if (l > r)\n            swap(l, r);\n        if (op == 0)\n\
+    \            s.update(l, r, 1, n, 1);\n        else\n            cout << s.getsum(l,\
+    \ r, 1, n, 1) << endl;\n    }\n}\n\nsigned main()\n{\n    ios::sync_with_stdio(0),\
+    \ cin.tie(0), cout.tie(0);\n    int cnt = 0;\n    while (cin >> n)\n    {\n  \
+    \      cout << \"Case #\" << ++cnt << \":\\n\";\n        solve();\n        cout\
+    \ << endl;\n    }\n    return 0;\n}"
+  createtime: '2025-10-19 09:56:04'
+  language: G++
+  memorykb: 11944
+  pid: '5'
+  runid: 19
+  score: null
+  status: 0
+  timems: 405
+- author: admin
+  code: "#include \"bits/stdc++.h\"\n#define int long long\nusing namespace std;\n\
+    int T, n, p[100005], q, op, cnt;\nstruct X\n{\n    int l, r, ls, rs, sum;\n}a[400005];\n\
+    int int_sqrt(int x) \n{\n    if (x <= 1) return x;\n    int l = 1, r = x, ans\
+    \ = 1;\n    while(l <= r) \n    {\n        int mid = l + (r - l) / 2;\n      \
+    \  if(mid <= x / mid) \n        {\n            ans = mid;\n            l = mid\
+    \ + 1;\n        }else \n        {\n            r = mid - 1;\n        }\n    }\n\
+    \    return ans;\n}\nint init(int l, int r)\n{\n    int now = ++cnt;\n    a[now].l\
+    \ = l, a[now].r = r;\n    if(l == r)\n    {\n        a[now].sum = p[l];\n    }else\n\
+    \    {\n        int mid = (l + r) / 2;\n        a[now].ls = init(l, mid);\n  \
+    \      a[now].rs = init(mid + 1, r);\n        a[now].sum = a[a[now].ls].sum +\
+    \ a[a[now].rs].sum;\n    }\n    return now;\n}\nvoid edit(int now, int l, int\
+    \ r)\n{\n    if(a[now].l > r || a[now].r < l)\treturn;\n    if (a[now].sum ==\
+    \ 0 || a[now].sum == a[now].r - a[now].l + 1) return;\n    if(a[now].l == a[now].r)\n\
+    \    {\n    \ta[now].sum = int_sqrt(a[now].sum);\n        return;\n    }\n   \
+    \ int ls = a[now].ls, rs = a[now].rs;\n    edit(ls, l, r);\n    edit(rs, l, r);\n\
+    \    a[now].sum = a[ls].sum + a[rs].sum;\n}\nint find(int now, int l, int r)\n\
+    {\n    if(a[now].l > r || a[now].r < l)\treturn 0;\n    if(l <= a[now].l && a[now].r\
+    \ <= r)\n    {\n        return a[now].sum;\n    }\n    int ls = a[now].ls, rs\
+    \ = a[now].rs;\n    return (find(ls, l, r) + find(rs, l, r));\n}\nsigned main()\n\
+    {\n    cin.tie(0);\n    ios::sync_with_stdio(false);\n    while(cin >> n)\n  \
+    \  {\n        T++, cnt = 0;\n        cout << \"Case #\" << T << \":\\n\";\n  \
+    \      for(int i = 1;i <= n;i++)\n        {\n            cin >> p[i];\n      \
+    \  }\n        init(1, n);\n        cin >> q;\n        while(q--)\n        {\n\
+    \            cin >> op;\n            if(op == 0)\n            {\n            \
+    \    int l, r;\n                cin >> l >> r;\n                edit(1, l, r);\n\
+    \            }else\n            {\n                int l, r;\n               \
+    \ cin >> l >> r;\n                cout << find(1, l, r) << '\\n';\n          \
+    \  }\n        }\n    }\n    return 0;\n}"
+  createtime: '2025-10-19 09:37:03'
+  language: G++
+  memorykb: 10380
+  pid: '5'
+  runid: 18
+  score: null
+  status: -1
+  timems: 639
+- author: admin
+  code: "#include \"bits/stdc++.h\"\nusing namespace std; \ndouble n, m, a;\nint main(){\n\
+    \    cin >> n >> m >> a;\n    long long ans = ceil(n / a) * ceil(m / a);\n   \
+    \ cout << ans;\n    return 0;\n}//"
+  createtime: '2025-10-19 09:30:25'
+  language: GNU G++17
+  memorykb: 0
+  pid: '4'
+  runid: 17
+  score: null
+  status: 0
+  timems: 46
+- author: admin
+  code: "#include \"bits/stdc++.h\"\nusing namespace std; \ndouble n, m, a;\nint main(){\n\
+    \    cin >> n >> m >> a;\n    long long ans = ceil(n / a) * ceil(m / a);\n   \
+    \ cout << ans;\n    return 0;\n}//"
+  createtime: '2025-10-19 09:25:06'
+  language: GNU G++17
+  memorykb: 0
+  pid: '4'
+  runid: 16
+  score: null
+  status: 0
+  timems: 62
+- author: admin
+  code: "#include \"bits/stdc++.h\"\n#define int long long\nusing namespace std;\n\
+    int T, n, p[100005], q, op, cnt;\nstruct X\n{\n    int l, r, ls, rs, sum;\n}a[400005];\n\
+    int init(int l, int r)\n{\n    int now = ++cnt;\n    a[now].l = l, a[now].r =\
+    \ r;\n    if(l == r)\n    {\n        a[now].sum = p[l];\n    }else\n    {\n  \
+    \      int mid = (l + r) / 2;\n        a[now].ls = init(l, mid);\n        a[now].rs\
+    \ = init(mid + 1, r);\n        a[now].sum = a[a[now].ls].sum + a[a[now].rs].sum;\n\
+    \    }\n    return now;\n}\nvoid edit(int now, int l, int r)\n{\n    if(a[now].l\
+    \ > r || a[now].r < l)\treturn;\n    if(a[now].l == a[now].r)\n    {\n    \ta[now].sum\
+    \ = floor(sqrt(a[now].sum));\n        return;\n    }\n    int ls = a[now].ls,\
+    \ rs = a[now].rs;\n    edit(ls, l, r);\n    edit(rs, l, r);\n    a[now].sum =\
+    \ a[ls].sum + a[rs].sum;\n}\nint find(int now, int l, int r)\n{\n    if(a[now].l\
+    \ > r || a[now].r < l)\treturn 0;\n    if(l <= a[now].l && a[now].r <= r)\n  \
+    \  {\n        return a[now].sum;\n    }\n    int ls = a[now].ls, rs = a[now].rs;\n\
+    \    return (find(ls, l, r) + find(rs, l, r));\n}\nsigned main()\n{\n    cin.tie(0);\n\
+    \    ios::sync_with_stdio(false);\n    while(cin >> n)\n    {\n        T++, cnt\
+    \ = 0;\n        cout << \"Case #\" << T << \":\\n\";\n        for(int i = 1;i\
+    \ <= n;i++)\n        {\n            cin >> p[i];\n        }\n        init(1, n);\n\
+    \        cin >> q;\n        while(q--)\n        {\n            cin >> op;\n  \
+    \          if(op == 0)\n            {\n                int l, r;\n           \
+    \     cin >> l >> r;\n                edit(1, l, r);\n            }else\n    \
+    \        {\n                int l, r;\n                cin >> l >> r;\n      \
+    \          cout << find(1, l, r) << '\\n';\n            }\n        }\n    }\n\
+    \    return 0;\n}"
+  createtime: '2025-10-19 09:14:19'
+  language: G++
+  memorykb: 10352
+  pid: '5'
+  runid: 15
+  score: null
+  status: 1
+  timems: 2000
+- author: admin
+  code: "#include \"bits/stdc++.h\"\nusing namespace std;\nint n, maxn;\nstring tmp,\
+    \ maxs;\nmap<string, int> mp;\nint main()\n{\n \tcin.tie(0);\n    ios::sync_with_stdio(false);\n\
+    \    while(cin >> n)\n    {\n        if(!n)\tbreak;\n        mp.clear();\n   \
+    \     maxn = 0;\n        while(n--)\n        {\n            cin >> tmp;\n    \
+    \        mp[tmp]++;\n            if(mp[tmp] > maxn)\tmaxn = mp[tmp], maxs = tmp;\n\
+    \        }\n        cout << maxs << '\\n';\n    }\n    return 0;\n}"
+  createtime: '2025-10-19 09:09:18'
+  language: G++
+  memorykb: 1752
+  pid: '2'
+  runid: 14
+  score: null
+  status: 0
+  timems: 31
+- author: admin
+  code: "#include <iostream>\nusing namespace std;\nint main()\n{\n    int a,b;\n\
+    \    cin>>a>>b;\n    cout<<a+b;\n    return 0;\n}"
+  createtime: '2025-10-19 08:03:43'
+  language: C++ 20 With O2
+  memorykb: 408
+  pid: '1'
+  runid: 12
+  score: 100
+  status: 0
+  timems: 1
+- author: admin
+  code: "#include <iostream>\nusing namespace std;\nint main()\n{\n    int a,b;\n\
+    \    cin>>a>>b;\n    cout<<a+b;\n    return 0;\n}"
+  createtime: '2025-10-19 08:02:06'
+  language: C++ With O2
+  memorykb: 504
+  pid: '1'
+  runid: 11
+  score: 100
+  status: 0
+  timems: 2
+- author: admin
+  code: "#include \"bits/stdc++.h\"\nusing namespace std; \ndouble n, m, a;\nint main(){\n\
+    \    cin >> n >> m >> a;\n    long long ans = ceil(n / a) * ceil(m / a);\n   \
+    \ cout << ans;\n    return 0;\n}//"
+  createtime: '2025-08-31 13:37:05'
+  language: GNU G++20
+  memorykb: 100
+  pid: '4'
+  runid: 10
+  score: null
+  status: 0
+  timems: 46
+- author: admin
+  code: "#include \"bits/stdc++.h\"\nusing namespace std; \ndouble n, m, a;\nint main(){\n\
+    \    cin >> n >> m >> a;\n    long long ans = ceil(n / a) * ceil(m / a);\n   \
+    \ cout << ans;\n    return 0;\n}//"
+  createtime: '2025-08-31 13:35:10'
+  language: GNU G++17
+  memorykb: 0
+  pid: '4'
+  runid: 9
+  score: null
+  status: 0
+  timems: 46
+- author: brx
+  code: "#include<bits/stdc++.h>\nusing namespace std;\nint head[6500005],cnt,dis[6500005],n=3,m=2,x,y,z;\n\
+    bool vis[6500005];\nstruct Edge\n{\n\tint v,nxt,w;\n}e[6200005];\nvoid add(int\
+    \ u,int v,int w)\n{\n\tcnt++;\n\te[cnt].v=v;\n\te[cnt].nxt=head[u];\n\te[cnt].w=w;\n\
+    \thead[u]=cnt;\n}\nvoid dijkstra(int s)\n{\n\tfor(int i=1;i<=n;i++)dis[i]=INT_MAX;\n\
+    \tdis[s]=0;\n\tfor(int i=1;i<n;i++)\n\t{\n\t\tint u,minn=INT_MAX;\n\t\tfor(int\
+    \ j=1;j<=n;j++)\n\t\t{\n\t\t\tif(vis[j]==0&&dis[j]<minn)\n\t\t\t{\n\t\t\t\tminn=dis[j];\n\
+    \t\t\t\tu=j;\n\t\t\t}\n\t\t}\n\t\tvis[u]=1;\n\t\tfor(int j=head[u];j;j=e[j].nxt)\n\
+    \t\t{\n\t\t\tint v=e[j].v,w=e[j].w;\n\t\t\tif(vis[v]==0&&dis[v]>dis[u]+w)dis[v]=dis[u]+w;\n\
+    \t\t}\n\t}\n}\nint main()\n{\n    int s,t;\n\twhile(cin>>s>>t)\n    {\n      \
+    \  add(1,2,s);\n\t\tadd(2,3,t);\n\t\tdijkstra(1);\n\t\tcout<<dis[3];\n    }\n\t\
+    return 0;\n}"
+  createtime: '2025-08-19 06:38:17'
+  language: C++
+  memorykb: 404
+  pid: '1'
+  runid: 8
+  score: 100
+  status: 0
+  timems: 1
+- author: lje
+  code: "#include \"bits/stdc++.h\"\n#define p printf\nint a, b;\nint main(){\n  \
+    \  srand(time(NULL));\n    scanf(\"%d%d\",&a,&b);\n    p(\"%d\",a + b);\n    return\
+    \ 0;\n}\n"
+  createtime: '2025-08-19 04:15:31'
+  language: C++ 20
+  memorykb: 404
+  pid: '1'
+  runid: 7
+  score: 100
+  status: 0
+  timems: 1
+- author: lje
+  code: 321`eeeeeeeeee11111111111111111111111111111111111111111111111111111111111111111111eeeeeeeee
+  createtime: '2025-08-19 04:14:15'
+  language: C++
+  memorykb: 0
+  pid: '1'
+  runid: 6
+  score: null
+  status: -2
+  timems: 0
+- author: admin
+  code: "#include \"bits/stdc++.h\"\nusing namespace std; \ndouble n, m, a;\nint main(){\n\
+    \    cin >> n >> m >> a;\n    long long ans = ceil(n / a) * ceil(m / a);\n   \
+    \ cout << ans;\n    return 0;\n}"
+  createtime: '2025-08-19 03:05:45'
+  language: GNU G++17
+  memorykb: 0
+  pid: '4'
+  runid: 3
+  score: null
+  status: 0
+  timems: 62
+- author: admin
+  code: "#include <iostream>\nusing namespace std;\nint main()\n{\n    int a,b;\n\
+    \    cin>>a>>b;\n    cout<<a+b;\n    return 0;\n}"
+  createtime: '2025-08-19 02:29:00'
+  language: C++ 20 With O2
+  memorykb: 404
+  pid: '1'
+  runid: 2
+  score: 100
+  status: 0
+  timems: 1

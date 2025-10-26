@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOJOJ - 题目列表</title>
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // 验证token
+                fetch('/api/verifyuser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.msg === 'success') {
+                        document.getElementById('user-info').style.display = 'block';
+                        document.getElementById('username-display').textContent = data.username;
+                    } else {
+                        localStorage.removeItem('token');
+                        document.getElementById('user-info').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('验证失败:', error);
+                    localStorage.removeItem('token');
+                    document.getElementById('user-info').style.display = 'none';
+                });
+            } else {
+                document.getElementById('user-info').style.display = 'none';
+            }
+        }
+
+        // 获取题目列表
+        function getProblemList() {
+            fetch('/api/problems')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('problem-table-body');
+                tableBody.innerHTML = '';
+
+                if (data && data.length > 0) {
+                    data.forEach(problem => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${problem.id}</td>
+                            <td><a href="/problemset/${problem.id}">${problem.title}</a></td>
+                            <td>${problem.diff}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="2">暂无题目</td>';
+                    tableBody.appendChild(row);
+                }
+            })
+            .catch(error => {
+                console.error('获取题目列表失败:', error);
+                const tableBody = document.getElementById('problem-table-body');
+                tableBody.innerHTML = '<tr><td colspan="2">获取题目列表失败</td></tr>';
+            });
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            checkLoginStatus();
+            getProblemList();
+        };
+    </script>    <style>
+        .danger-btn {
+            background-color: #dc3545;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }        
+        .danger-btn:hover {
+            background-color: #c82333;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn {
+            background-color: #ffc107;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn:hover {
+            background-color: #e0a800;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn:hover {
+            background-color: #218838;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 - 与home.html保持一致 -->
+    <header style="background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 50%,#89c3eb 51%,#d5ebfb 100%);height: 50px;">
+        <div style="display: inline-block;line-height: 50px;"><a href="/home">主页</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;">题目列表</div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/submit">提交代码</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/status">评测查询</a></div>
+    </header>
+
+    <!-- 用户信息 -->
+    <div id="user-info" style="display: none;">
+        <p>您已登录，用户名: <span id="username-display"></span></p>
+        <button class="primary-btn" onclick="window.location.href = '/user/' + document.getElementById('username-display').textContent;">我的主页</button>
+        <button class="danger-btn"  onclick="localStorage.removeItem('token'); checkLoginStatus();">退出登录</button>
+    </div>
+
+    <!-- 题目列表 -->
+    <section id="problems-list" style="margin: 20px;">
+        <h1>题目列表</h1>
+        <table border="1" csellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f0f0f0;">
+                    <th>题号</th>
+                    <th>地址</th>
+                    <th>难度</th>
+                </tr>
+            </thead>
+            <tbody id="problem-table-body">
+                <!-- 题目列表将通过JavaScript动态生成 -->
+                <tr>
+                    <td colspan="2">加载中...</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</body>
+</html>

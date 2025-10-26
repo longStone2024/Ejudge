@@ -1,0 +1,6 @@
+- id: 3
+- name: "Web 导航"
+- submit: "Remote Judge"
+- remoteid: "POJ-1028"
+- isremote: "poj"
+- diff: "2"

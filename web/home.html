@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOJOJ - 首页</title>
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // 验证token
+                fetch('/api/verifyuser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.msg === 'success') {
+                        document.getElementById('login-section').style.display = 'none';
+                        document.getElementById('user-info').style.display = 'block';
+                        // 显示用户名
+                        document.getElementById('username-display').textContent = data.username;
+                    } else {
+                        localStorage.removeItem('token');
+                        document.getElementById('login-section').style.display = 'block';
+                        document.getElementById('user-info').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('验证失败:', error);
+                    localStorage.removeItem('token');
+                    document.getElementById('login-section').style.display = 'block';
+                    document.getElementById('user-info').style.display = 'none';
+                });
+            } else {
+                document.getElementById('login-section').style.display = 'block';
+                document.getElementById('user-info').style.display = 'none';
+            }
+        }
+
+        // 登录函数
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: username, password: password })
+            })
+            .then(response => {
+                // 保存响应头信息
+                const token = response.headers.get('Authorization');
+                // 同时获取JSON数据
+                return response.json().then(data => ({ data, token }));
+            })
+            .then(({ data, token }) => {
+                if (token) {
+                    localStorage.setItem('token', token);
+                    alert('登录成功');
+                    checkLoginStatus();
+                } else {
+                    alert('登录失败: ' + data.msg);
+                }
+            })
+            .catch(error => {
+                console.error('登录失败:', error);
+                alert('登录失败，请重试');
+            });
+            return false;
+        }
+
+        // 获取公告
+        function getNotice() {
+            fetch('/api/notice')
+            .then(response => response.json())
+            .then(data => {
+                const noticeContainer = document.getElementById('notice-container');
+                if (data && data.length > 0) {
+                    let noticeHtml = '';
+                    data.forEach(notice => {
+                        noticeHtml += `
+                        <div class="notice-item">
+                            <h3>${notice.title || '无标题'}</h3>
+                            <p>${notice.content || '无内容'}</p>
+                            <p class="notice-date">发布时间: ${notice.date || '未知'}</p>
+                        </div>
+                        `;
+                    });
+                    noticeContainer.innerHTML = noticeHtml;
+                } else {
+                    noticeContainer.innerHTML = '<p>暂无公告</p>';
+                }
+            })
+            .catch(error => {
+                console.error('获取公告失败:', error);
+                document.getElementById('notice-container').innerHTML = '<p>获取公告失败</p>';
+            });
+        }
+
+        // 刷新公告
+        function refreshNotice() {
+            // 显示加载状态
+            document.getElementById('notice-container').innerHTML = '<p>加载中...</p>';
+            // 调用获取公告函数
+            getNotice();
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            checkLoginStatus();
+            getNotice();
+        };
+    </script>
+    <style>
+        .danger-btn {
+            background-color: #dc3545;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }        
+        .danger-btn:hover {
+            background-color: #c82333;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn {
+            background-color: #ffc107;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn:hover {
+            background-color: #e0a800;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn:hover {
+            background-color: #218838;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>    <style>
+        .danger-btn {
+            background-color: #dc3545;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }        
+        .danger-btn:hover {
+            background-color: #c82333;  
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .primary-btn:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn {
+            background-color: #ffc107;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .warning-btn:hover {
+            background-color: #e0a800;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .success-btn:hover {
+            background-color: #218838;
+            color: #fff;
+            border: none;
+            padding: 5px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header style="background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 50%,#89c3eb 51%,#d5ebfb 100%);height: 50px;">
+        <div style="display: inline-block;line-height: 50px;">主页</div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/problemset">题目列表</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/submit">提交代码</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/status">评测查询</a></div>
+    </header>
+
+    <!-- 用户信息 -->
+    <div id="user-info" style="display: none;">
+        <p>您已登录，用户名: <span id="username-display"></span></p>
+        <button class="primary-btn" onclick="window.location.href = '/user/' + document.getElementById('username-display').textContent;">我的主页</button>
+        <button class="danger-btn"  onclick="localStorage.removeItem('token'); checkLoginStatus();">退出登录</button>
+    </div>
+
+    <!-- 登录表单 -->
+    <div id="login-section" style="display: none;">
+        <h2>用户登录</h2>
+        <form onsubmit="return login()">
+            <div>
+                <label for="username">用户名:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">密码:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button class="primary-btn" type="submit">登录</button>
+        </form>
+    </div>
+
+    <!-- 公告展示 -->
+    <section id="notice">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>公告</h2>
+            <button onclick="refreshNotice()">刷新</button>
+        </div>
+        <div id="notice-container"></div>
+    </section>
+</body>
+</html>

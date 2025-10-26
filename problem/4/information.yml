@@ -1,0 +1,6 @@
+﻿- id: 4
+- name: "铺石板"
+- submit: "Remote Judge"
+- remoteid: "CF-1A"
+- isremote: "cf"
+- diff: "1"

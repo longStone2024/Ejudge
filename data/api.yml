@@ -1,0 +1,5 @@
+Login: "/api/login"
+GetSubmission: "/api/get-submission-detail"
+submitProblem: "/api/submit-problem-judge"
+updcfSession: "/api/update-cfSession"
+

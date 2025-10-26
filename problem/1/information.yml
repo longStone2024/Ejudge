@@ -1,0 +1,6 @@
+- id: 1
+- name: "A + B 问题"
+- submit: "Remote Judge"
+- remoteid: "A300"
+- isremote: "mine"
+- diff: "1"

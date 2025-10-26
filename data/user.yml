@@ -1,0 +1,22 @@
+- password: '123654'
+  solve_list:
+  - '1'
+  - '2'
+  - '3'
+  - '4'
+  - '5'
+  solved: 5
+  try: 19
+  username: admin
+- password: '123456'
+  solve_list:
+  - '1'
+  solved: 1
+  try: 2
+  username: brx
+- password: '123456'
+  solve_list:
+  - '1'
+  solved: 1
+  try: 2
+  username: lje

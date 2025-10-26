@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOJOJ - 题目详情</title>
+    <script>
+        // 检查登录状态
+        function checkLoginStatus() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // 验证token
+                fetch('/api/verifyuser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.msg === 'success') {
+                        document.getElementById('user-info').style.display = 'block';
+                        document.getElementById('username-display').textContent = data.username;
+                    } else {
+                        localStorage.removeItem('token');
+                        document.getElementById('user-info').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('验证失败:', error);
+                    localStorage.removeItem('token');
+                    document.getElementById('user-info').style.display = 'none';
+                });
+            } else {
+                document.getElementById('user-info').style.display = 'none';
+            }
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            checkLoginStatus();
+        };
+    </script>
+</head>
+<body>
+    <!-- 顶部导航 - 与home.html保持一致 -->
+    <header style="background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 50%,#89c3eb 51%,#d5ebfb 100%);height: 50px;">
+        <div style="display: inline-block;line-height: 50px;"><a href="/home">主页</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/problemset">题目列表</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/submit">提交代码</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/status">评测查询</a></div>
+    </header>
+
+    <!-- 用户信息 -->
+    <div id="user-info" style="display: none;">
+        <p>您已登录，用户名: <span id="username-display"></span></p>
+        <button class="user-btn" onclick="window.location.href = '/user/' + document.getElementById('username-display').textContent;">我的主页</button>
+        <button onclick="localStorage.removeItem('token'); checkLoginStatus();">退出登录</button>
+    </div>
+
+    <!-- 题目详情 -->
+    <section id="problem-details" style="margin: 20px;">
+        <h1 id="problem-title">A + B 问题</h1>
+
+        <!-- 题目信息 -->
+        <div id="problem-info" style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px;">
+            <p><strong>时间限制:</strong> <span id="time-limit">1000ms</span></p>
+            <p><strong>空间限制:</strong> <span id="memory-limit">256MB</span></p>
+            <p><strong>评测方式:</strong> <span id="judge-method">Remote</span></p>
+        </div>
+
+        <!-- 题目描述 -->
+        <div id="problem-description" style="margin-bottom: 20px;">
+            <h2>题目描述</h2>
+            <div id="description-content">
+                <p>给定两个整数 a, b，输出它们的和。</p>
+            </div>
+        </div>
+
+        <!-- 输入描述 -->
+        <div id="input-description" style="margin-bottom: 20px;">
+            <h2>输入描述</h2>
+            <div id="input-content">
+                <p>一行，两个不超过 10000 的整数 a，b，用空格分隔。</p>
+            </div>
+        </div>
+
+        <!-- 输出描述 -->
+        <div id="output-description" style="margin-bottom: 20px;">
+            <h2>输出描述</h2>
+            <div id="output-content">
+                <!-- 请在此处填写输出描述 -->
+                <p>输出一个整数，为 a 加上 b 的结果。</p>
+
+            </div>
+        </div>
+
+        <!-- 提示 -->
+        <div id="hint" style="margin-bottom: 20px;">
+            <h2>提示</h2>
+            <div id="hint-content">
+                <!-- 请在此处填写提示 -->
+                <p>无</p>
+            </div>
+        </div>
+
+        <!-- 样例 -->
+        <div id="examples" style="margin-bottom: 20px;">
+            <h2>样例</h2>
+            
+            <!-- 样例输入 -->
+            <div id="example-input" style="margin-bottom: 10px;">
+                <h3>输入</h3>
+                <pre id="sample-input">1 2</pre>
+            </div>
+
+            <!-- 样例输出 -->
+            <div id="example-output">
+                <h3>输出</h3>
+                <pre id="sample-output">3</pre>
+            </div>
+        </div>
+
+        <!-- 提交按钮 -->
+        <div id="submit-area">
+            <button onclick="window.location.href='/submit?problem=1'">提交代码</button>
+
+        </div>
+    </section>
+</body>
+</html>

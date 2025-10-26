@@ -1,0 +1,8 @@
+last_runid: 22
+remote_oj: http://ssf.hdoi.cn
+website_info:
+  name: HOJOJ
+  description: 通过合理利用（滥用）HOJ的评测资源搭建的OJ平台
+  version: 1.2.0
+  author: longStone
+cf_jsession: A60177B7809840FDD3935FA734C64A79
