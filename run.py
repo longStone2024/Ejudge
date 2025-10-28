@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, send_from_directory, redirect
-import yaml, os, uuid, datetime, requests, random, time, threading
+import yaml, os, uuid, datetime, requests, random, time, threading, hashlib
 # Setting 
 with open('data/config.yml', encoding='utf-8') as f:
     config = yaml.safe_load(f)
@@ -60,7 +60,7 @@ def load_config():
             'website_info': {
                 'name': 'HOJOJ',
                 'description': '通过合理利用（滥用）HOJ 的评测资源搭建的 OJ 平台',
-                'version': '1.2.0',
+                'version': '1.3.0',
                 'author': 'longStone'
             },
             'cf_jsession': ''
@@ -91,6 +91,16 @@ def load_users():
         except Exception as e:
             print(f'读取用户文件失败: {e}')
     return {}
+def save_users(users):
+    user_file = os.path.join('data', 'user.yml')
+    if os.path.exists(user_file):
+        try:
+            with open(user_file, 'w', encoding='utf-8') as f:
+                yaml.dump(users, f, allow_unicode=True)
+        except Exception as e:
+            print(f'保存用户文件失败: {e}')
+            return False
+    return True
 
 
 # 生成token
@@ -131,6 +141,7 @@ def validate_token(token):
     valid_tokens = []
     is_valid = False
     username = None
+    role = None
 
     for t in tokens:
         # 检查token是否过期
@@ -141,11 +152,11 @@ def validate_token(token):
             if t['token'] == token:
                 is_valid = True
                 username = t['username']
-        # 过期的token会被自动过滤掉
+                role = t['role']
 
     # 保存更新后的token列表（移除过期token）
     save_tokens(valid_tokens)
-    return is_valid, username
+    return is_valid, username, role
 def craw_submit(runid, pid, token, author):
     # 获取远程评测结果
     config = load_config()
@@ -325,7 +336,8 @@ def login():
     tokens.append({
         'token': token,
         'expire_date': expire_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'username': username
+        'username': username,
+        'role': user['role']
     })
 
     # 保存token
@@ -347,9 +359,9 @@ def verify_user():
         return jsonify({'msg': 'token不能为空'}), 400
     
     # 验证token
-    is_valid, username = validate_token(token)
+    is_valid, username, role = validate_token(token)
     if is_valid:
-        return jsonify({'msg': 'success', 'username': username}), 200
+        return jsonify({'msg': 'success', 'username': username, 'role': role}), 200
     else:
         return jsonify({'msg': 'token错误或已过期'}), 401
 
@@ -383,6 +395,7 @@ def get_problems():
         # 按题号排序
     problems.sort(key=lambda x: int(x['id']))
     return jsonify(problems), 200
+
 @app.route('/api/submissions', methods=['GET'])
 def get_submissions():
     submission_file = os.path.join('data', 'submission.yml')
@@ -437,7 +450,7 @@ def submit_problem_judge():
     lang = data.get('lang')
     token = request.headers.get('Authorization')
     # 验证token
-    is_valid, author = validate_token(token)
+    is_valid, author, role = validate_token(token)
     if not is_valid:
         return jsonify({'msg': '请您先登录！'}), 401
     # 从对应题目的 information.yml 中获取 isremote 信息
@@ -612,6 +625,153 @@ def get_notice():
 @app.route('/api/about', methods=['GET'])
 def get_about():
     return jsonify(website_info)
+
+# Admin Pages
+@app.route('/admin', methods=['GET'])
+def admin_page():
+    return send_from_directory('web/admin', 'admin.html')
+
+@app.route('/admin/users', methods=['GET'])
+def admin_users_page():
+    return send_from_directory('web/admin', 'users.html')
+
+# Admin API
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'msg': '用户名和密码不能为空'}), 400
+
+    # 加载用户数据
+    users = load_users()
+
+    is_login = False
+    # 验证用户
+    for user in users:
+        if user['username'] == username:
+            if user['password'] == password:
+                is_login = True
+                role = user['role']
+                break
+            else:
+                return jsonify({'msg': '密码错误'}), 401
+            
+    if not is_login:
+        return jsonify({'msg': '不存在的用户名'}), 401
+    
+     # 检查角色是否为管理员
+    if role not in ['root', 'admin']:
+        return jsonify({'msg': '请重新使用管理员账户登录'}), 403
+
+    # 生成token
+    token, expire_date = generate_token(username)
+
+    # 加载现有token
+    tokens = load_tokens()
+
+    # 移除该用户现有的token（如果有）
+    tokens = [t for t in tokens if t['username'] != username]
+
+    # 添加新token
+    tokens.append({
+        'token': token,
+        'expire_date': expire_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'username': username,
+        'role': user['role']
+    })
+
+    # 保存token
+    if not save_tokens(tokens):
+        return jsonify({'msg': '生成token失败'}), 500
+    
+    # token 应存储在返回的Authorization头中
+    response = jsonify({
+        'msg': '登录成功',
+        'expire_date': expire_date.strftime('%Y-%m-%d %H:%M:%S')
+    })
+    response.headers['Authorization'] = f'{token}'
+    return response, 200
+
+@app.route('/api/admin/verifyuser', methods=['POST'])
+def admin_verify_user():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'msg': 'token不能为空'}), 400
+    
+    # 验证token
+    is_valid, username, role = validate_token(token)
+    if role not in ['root', 'admin']:
+        return jsonify({'msg': '请重新使用管理员账户登录'}), 403
+    if is_valid:
+        return jsonify({'msg': 'success', 'username': username, 'role': role}), 200
+    else:
+        return jsonify({'msg': 'token错误或已过期'}), 401
+    
+@app.route('/api/admin/users', methods=['GET'])
+def admin_get_users():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'msg': 'token不能为空'}), 400
+    
+    # 验证token
+    is_valid, username, role = validate_token(token)
+    if role not in ['root', 'admin']:
+        return jsonify({'msg': '请重新使用管理员账户登录'}), 403
+    if not is_valid:
+        return jsonify({'msg': 'token错误或已过期'}), 401
+    count = int(request.args.get('count', 10))
+    if count > 100:
+        count = 100
+    # 页数，默认第 1 页
+    page = int(request.args.get('page', 1))
+
+    # 加载用户数据的第 page * count + 1 条记录到第 (page + 1) * count 条记录
+    users = load_users()
+    start_index = (page - 1) * count
+    end_index = page * count
+    return jsonify(users[start_index:end_index]), 200
+
+
+@app.route('/api/admin/deleteuser', methods=['DELETE'])
+def admin_delete_user():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'msg': 'token不能为空'}), 400
+    # 验证token
+    is_valid, username, role = validate_token(token)
+    if role not in ['root', 'admin']:
+        return jsonify({'msg': '请重新使用管理员账户登录'}), 403
+
+    data = request.json
+    uid = data.get('uid')
+    if not uid:
+        return jsonify({'msg': 'uid不能为空'}), 400
+    # 加载用户数据
+    users = load_users()
+    # 二分查找 UID
+    left, right = 0, len(users) - 1
+    found = False
+    while left <= right:
+        mid = (left + right) // 2
+        if int(users[mid]['uid']) == int(uid):
+            found = True
+            break
+        elif int(users[mid]['uid']) < int(uid):
+            left = mid + 1
+        else:
+            right = mid - 1
+    if not found:
+        return jsonify({'msg': '不存在的uid'}), 400
+    # 删除用户
+    del users[mid]
+    # 保存用户数据
+    if not save_users(users):
+        return jsonify({'msg': '删除用户失败'}), 500
+    return jsonify({'msg': 'success'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)

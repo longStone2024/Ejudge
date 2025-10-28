@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOJOJ - 首页</title>
+    <title>HOJOJ - 用户管理</title>
     <script>
         // 检查登录状态
         function checkLoginStatus() {
             const token = localStorage.getItem('token');
             if (token) {
                 // 验证token
-                fetch('/api/verifyuser', {
+                fetch('/api/admin/verifyuser', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -21,106 +21,103 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.msg === 'success') {
-                        document.getElementById('login-section').style.display = 'none';
                         document.getElementById('user-info').style.display = 'block';
                         // 显示用户名
                         document.getElementById('username-display').textContent = data.username;
-                        // 显示管理员按钮
-                        if (data.role === 'root' || data.role === 'admin') {
-                            document.querySelector('.warning-btn').style.display = 'inline-block';
-                        }
+                        document.getElementById('role-display').textContent = data.role;
                     } else {
                         localStorage.removeItem('token');
-                        document.getElementById('login-section').style.display = 'block';
                         document.getElementById('user-info').style.display = 'none';
                     }
                 })
                 .catch(error => {
                     console.error('验证失败:', error);
                     localStorage.removeItem('token');
-                    document.getElementById('login-section').style.display = 'block';
                     document.getElementById('user-info').style.display = 'none';
                 });
             } else {
-                document.getElementById('login-section').style.display = 'block';
                 document.getElementById('user-info').style.display = 'none';
             }
-        }
-
-        // 登录函数
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            fetch('/api/login', {
-                method: 'POST',
+        }        
+        // 删除用户
+        function deleteUser(uid) {
+            const token = localStorage.getItem('token');
+            fetch('/api/admin/deleteuser', {
+                method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': token
                 },
-                body: JSON.stringify({ username: username, password: password })
+                body: JSON.stringify({uid:uid})
             })
-            .then(response => {
-                // 保存响应头信息
-                const token = response.headers.get('Authorization');
-                // 同时获取JSON数据
-                return response.json().then(data => ({ data, token }));
-            })
-            .then(({ data, token }) => {
-                if (token) {
-                    localStorage.setItem('token', token);
-                    alert('登录成功');
-                    checkLoginStatus();
-                } else {
-                    alert('登录失败: ' + data.msg);
-                }
-            })
-            .catch(error => {
-                console.error('登录失败:', error);
-                alert('登录失败，请重试');
-            });
-            return false;
-        }
-
-        // 获取公告
-        function getNotice() {
-            fetch('/api/notice')
             .then(response => response.json())
             .then(data => {
-                const noticeContainer = document.getElementById('notice-container');
-                if (data && data.length > 0) {
-                    let noticeHtml = '';
-                    data.forEach(notice => {
-                        noticeHtml += `
-                        <div class="notice-item">
-                            <h3>${notice.title || '无标题'}</h3>
-                            <p>${notice.content || '无内容'}</p>
-                            <p class="notice-date">发布时间: ${notice.date || '未知'}</p>
-                        </div>
-                        `;
-                    });
-                    noticeContainer.innerHTML = noticeHtml;
+                if (data.msg === 'success') {
+                    // 删除成功后刷新用户列表
+                    loadUsers();
                 } else {
-                    noticeContainer.innerHTML = '<p>暂无公告</p>';
+                    console.error('删除失败:', data.msg);
                 }
             })
             .catch(error => {
-                console.error('获取公告失败:', error);
-                document.getElementById('notice-container').innerHTML = '<p>获取公告失败</p>';
+                console.error('删除失败:', error);
             });
         }
-
-        // 刷新公告
-        function refreshNotice() {
-            // 显示加载状态
-            document.getElementById('notice-container').innerHTML = '<p>加载中...</p>';
-            // 调用获取公告函数
-            getNotice();
+        // 确认删除用户
+        function confirmDelete(uid) {
+            document.getElementById('delete-uid').textContent = uid;
+            document.getElementById('delete-dialog').showModal();
         }
+        // 关闭删除确认对话框
+        function closeDeleteDialog() {
+            document.getElementById('delete-dialog').close();
+        }
+        // 加载用户数据
+        function loadUsers() {
+            const token = localStorage.getItem('token');
+            fetch('/api/admin/users?count=' + document.getElementById('count').value + '&page=' + document.getElementById('page').value,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('users-container');
+                let html = `
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr style="background: #f5f5f5;">
+                        <th style="padding: 8px; border: 1px solid #ddd;">用户ID</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">用户名</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">角色</th>
+                        <th style="padding: 8px; border: 1px solid #ddd;">操作</th>
+                    </tr>`;
 
+                data.forEach(sub => {
+                    html += `
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${sub.uid}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"><a href="/user/${sub.username}">${sub.username}</a></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${sub.role}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <button class="danger-btn" onclick="confirmDelete(${sub.uid})">删除</button>
+                        </td>
+                    </tr>`;
+                });
+
+                html += '</table>';
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('加载失败:', error);
+            });
+        }
         // 页面加载完成后执行
         window.onload = function() {
             checkLoginStatus();
-            getNotice();
+            loadUsers();
         };
     </script>
     <style>
@@ -274,43 +271,37 @@
 <body>
     <!-- 顶部导航 -->
     <header style="background: linear-gradient(to bottom, #ebf1f6 0%,#abd3ee 50%,#89c3eb 51%,#d5ebfb 100%);height: 50px;">
-        <div style="display: inline-block;line-height: 50px;">主页</div>
-        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/problemset">题目列表</a></div>
-        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/submit">提交代码</a></div>
-        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/status">评测查询</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/home">返回首页</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/admin">仪表盘</a></div>
+        <div style="display: inline-block; margin-left: 20px;line-height: 50px;"><a href="/admin/users">用户管理</a></div>
     </header>
 
     <!-- 用户信息 -->
     <div id="user-info" style="display: none;">
-        <p>您已登录，用户名: <span id="username-display"></span></p>
-        <button class="primary-btn" onclick="window.location.href = '/user/' + document.getElementById('username-display').textContent;">我的主页</button>
-        <button class="warning-btn" style="display: none;" onclick="window.location.href = '/admin'">网站管理</button>
+        <p>您已登录，角色: <span id="role-display"></span>，用户名: <span id="username-display"></span></p>
         <button class="danger-btn"  onclick="localStorage.removeItem('token'); checkLoginStatus();">退出登录</button>
     </div>
 
-    <!-- 登录表单 -->
-    <div id="login-section" style="display: none;">
-        <h2>用户登录</h2>
-        <form onsubmit="return login()">
-            <div>
-                <label for="username">用户名:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="password">密码:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button class="primary-btn" type="submit">登录</button>
-        </form>
-    </div>
-
-    <!-- 公告展示 -->
-    <section id="notice">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>公告</h2>
-            <button onclick="refreshNotice()">刷新</button>
+    <!-- 用户列表 -->
+    <section style="margin: 20px;">
+        <h2>用户列表</h2>
+        <div id="users-container">
+            <p>加载中...</p>
         </div>
-        <div id="notice-container"></div>
+        <div>
+            <p style="display: inline-block;">每页用户数：</p>
+            <input type="number" id="count" value="10" placeholder="每页用户数" style="margin-left: 20px;">
+            <p style="display: inline-block;margin-left: 20px;">页码：</p>
+            <input type="number" id="page" value="1" placeholder="页码" style="margin-left: 20px;">
+            <button class="primary-btn" onclick="loadUsers()">查询</button>
+        </div>
     </section>
+    <dialog id="delete-dialog">
+        <form method="dialog">
+            <p>确认删除用户 <span id="delete-uid"></span> 吗？</p>
+            <button class="danger-btn" type="submit" onclick="deleteUser(getElementById('delete-uid').textContent)">删除</button>
+            <button class="primary-btn" type="button" onclick="closeDeleteDialog()">取消</button>
+        </form>
+    </dialog>
 </body>
 </html>
